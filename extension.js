@@ -1,12 +1,14 @@
-// TAMU Olympus: one-click VS Code tunnel on an Olympus compute node.
-// Unofficial, community-made. Not affiliated with or supported by Texas A&M ECE IT.
+// TAMU Olympus: one-click VS Code on an Olympus compute node.
+// Guide: https://docs.ao.tamu.edu/docs/hpc/olympus.ece.tamu.edu/vscode-compute
 const vscode = require('vscode');
 const fs = require('fs');
 const path = require('path');
 const remote = require('./remote');
 
 const TERM_NAME = 'TAMU Olympus';
+const GUIDE_URL = 'https://docs.ao.tamu.edu/docs/hpc/olympus.ece.tamu.edu/vscode-compute';
 let ctx;
+let starting = false; // ignore extra clicks while a start is in progress
 
 // ---------- settings & state ----------
 const cfg = () => vscode.workspace.getConfiguration('tamuOlympus');
@@ -100,10 +102,17 @@ async function start() {
     return;
   }
   fs.writeFileSync(stateFile('last_tunnel'), name);
-  const pick = await vscode.window.showInformationMessage(`Tunnel ${name} is ready.`, 'Connect', 'Open in Browser', 'Copy Name');
-  if (pick === 'Connect') await connect(name);
-  else if (pick === 'Open in Browser') vscode.env.openExternal(vscode.Uri.parse(`https://vscode.dev/tunnel/${name}`));
-  else if (pick === 'Copy Name') vscode.env.clipboard.writeText(name);
+  vscode.window.setStatusBarMessage(`$(check) Olympus: tunnel ${name} ready, connecting...`, 10000);
+  await connect(name); // one click: connect straight away
+}
+
+async function startOnce() {
+  if (starting) {
+    vscode.window.showInformationMessage('Olympus tunnel is already starting. Check the "TAMU Olympus" terminal.');
+    return;
+  }
+  starting = true;
+  try { await start(); } finally { starting = false; }
 }
 
 async function connect(name) {
@@ -145,6 +154,7 @@ async function menu() {
     { label: '$(folder) Set project folder', description: projectPath() || '(none yet)', id: 'setFolder' },
     { label: '$(list-unordered) Status', id: 'status' },
     { label: '$(debug-stop) Stop tunnel job', id: 'stop' },
+    { label: '$(book) Olympus VS Code guide', description: 'docs.ao.tamu.edu', id: 'openGuide' },
   ];
   const choice = await vscode.window.showQuickPick(items, { placeHolder: 'TAMU Olympus VS Code tunnel' });
   if (choice) vscode.commands.executeCommand(`tamuOlympus.${choice.id}`);
@@ -271,14 +281,26 @@ function activate(context) {
 
   const item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
   item.text = '$(remote-explorer) Olympus';
-  item.tooltip = 'Start or connect to your VS Code tunnel on TAMU Olympus';
-  item.command = 'tamuOlympus.menu';
+  // One click starts (or reuses) the tunnel and connects. Hover for the other actions.
+  item.command = 'tamuOlympus.start';
+  const tip = new vscode.MarkdownString(
+    '**TAMU Olympus**: click to start your tunnel and connect\n\n' +
+    '[$(list-unordered) Status](command:tamuOlympus.status) · ' +
+    '[$(debug-stop) Stop](command:tamuOlympus.stop) · ' +
+    '[$(folder) Project folder](command:tamuOlympus.setFolder) · ' +
+    '[$(ellipsis) More](command:tamuOlympus.menu)\n\n' +
+    `[$(book) Olympus VS Code guide](${GUIDE_URL})`,
+    true,
+  );
+  tip.isTrusted = true;
+  item.tooltip = tip;
   item.show();
 
   context.subscriptions.push(
     item,
     vscode.commands.registerCommand('tamuOlympus.menu', menu),
-    vscode.commands.registerCommand('tamuOlympus.start', start),
+    vscode.commands.registerCommand('tamuOlympus.start', startOnce),
+    vscode.commands.registerCommand('tamuOlympus.openGuide', () => vscode.env.openExternal(vscode.Uri.parse(GUIDE_URL))),
     vscode.commands.registerCommand('tamuOlympus.connect', () => connect(readLastTunnel()?.name)),
     vscode.commands.registerCommand('tamuOlympus.setFolder', setFolder),
     vscode.commands.registerCommand('tamuOlympus.status', () => runSsh(remote.remoteCommand(remote.STATUS))),

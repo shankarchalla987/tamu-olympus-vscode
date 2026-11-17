@@ -2,15 +2,19 @@
 
 One click to open VS Code on a compute node of the Texas A&M ECE **Olympus** cluster.
 
-> **Unofficial.** Made by a student for fellow ECE users. It is not affiliated with or supported by Texas A&M or ECE IT. For cluster problems, contact linux-engr-helpdesk@tamu.edu. For problems with this extension, open an issue at https://github.com/shankarchalla987/tamu-olympus-vscode/issues.
+📖 Olympus VS Code guide: https://docs.ao.tamu.edu/docs/hpc/olympus.ece.tamu.edu/vscode-compute
 
 ## What it does
 
-Click **Olympus** in the status bar, then **Start / reuse tunnel and connect**:
+Click **Olympus** in the status bar. That's it:
 
 1. A terminal opens. Type your Olympus password.
 2. If you already have a `vscode-tunnel` job, it's reused. Otherwise one is submitted with `/opt/coe/bin/start_vscode_tunnel.sh` (partition `cpu-research`).
-3. When the tunnel is ready, click **Connect**. VS Code opens your project folder on the compute node.
+3. When the tunnel is ready, VS Code connects and opens your project folder on the compute node.
+
+Hover over the button for **Status**, **Stop**, **Project folder** and the guide.
+
+For cluster problems, contact linux-engr-helpdesk@tamu.edu. For problems with this extension, open an issue at https://github.com/shankarchalla987/tamu-olympus-vscode/issues.
 
 It also:
 
