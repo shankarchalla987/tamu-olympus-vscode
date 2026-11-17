@@ -1,0 +1,6 @@
+*.vsix
+test/**
+.git/**
+.github/**
+.gitattributes
+.gitignore

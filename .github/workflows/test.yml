@@ -1,0 +1,36 @@
+name: test
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Syntax check
+        run: node --check extension.js && node --check remote.js
+        shell: bash
+      - name: macOS / Linux end-to-end test
+        if: runner.os != 'Windows'
+        run: node test/run-test.js
+      - name: Windows end-to-end test (Windows PowerShell 5.1)
+        if: runner.os == 'Windows'
+        run: node test/windows-test.js
+      - name: Package .vsix
+        if: runner.os == 'Linux'
+        run: npx --yes @vscode/vsce@3 package
+      - uses: actions/upload-artifact@v4
+        if: runner.os == 'Linux'
+        with:
+          name: tamu-olympus-vsix
+          path: '*.vsix'

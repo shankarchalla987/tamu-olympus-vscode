@@ -1,0 +1,109 @@
+{
+  "name": "tamu-olympus",
+  "displayName": "TAMU Olympus",
+  "description": "Unofficial: one-click VS Code tunnel on a Texas A&M ECE Olympus compute node. Remembers your project folder and open tabs.",
+  "version": "1.0.0",
+  "publisher": "shankarchalla987",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shankarchalla987/tamu-olympus-vscode.git"
+  },
+  "bugs": {
+    "url": "https://github.com/shankarchalla987/tamu-olympus-vscode/issues"
+  },
+  "homepage": "https://github.com/shankarchalla987/tamu-olympus-vscode#readme",
+  "keywords": [
+    "tamu",
+    "texas a&m",
+    "olympus",
+    "hpc",
+    "slurm",
+    "tunnel",
+    "remote"
+  ],
+  "categories": [
+    "Other"
+  ],
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "extensionKind": [
+    "ui"
+  ],
+  "extensionDependencies": [
+    "ms-vscode.remote-server"
+  ],
+  "main": "./extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "tamuOlympus.menu",
+        "title": "TAMU Olympus: Menu"
+      },
+      {
+        "command": "tamuOlympus.start",
+        "title": "TAMU Olympus: Start Tunnel and Connect"
+      },
+      {
+        "command": "tamuOlympus.connect",
+        "title": "TAMU Olympus: Connect to Last Tunnel"
+      },
+      {
+        "command": "tamuOlympus.setFolder",
+        "title": "TAMU Olympus: Set Project Folder"
+      },
+      {
+        "command": "tamuOlympus.status",
+        "title": "TAMU Olympus: Tunnel Status"
+      },
+      {
+        "command": "tamuOlympus.stop",
+        "title": "TAMU Olympus: Stop Tunnel"
+      }
+    ],
+    "configuration": {
+      "title": "TAMU Olympus",
+      "properties": {
+        "tamuOlympus.netid": {
+          "type": "string",
+          "default": "",
+          "description": "Your TAMU NetID (Olympus username). Asked on first use if empty."
+        },
+        "tamuOlympus.host": {
+          "type": "string",
+          "default": "olympus.ece.tamu.edu",
+          "description": "Olympus login host."
+        },
+        "tamuOlympus.time": {
+          "type": "string",
+          "default": "1-00:00:00",
+          "description": "SLURM time limit for new tunnel jobs, e.g. 8:00:00 or 2-00:00:00 (max 7-00:00:00)."
+        },
+        "tamuOlympus.folder": {
+          "type": "string",
+          "default": "",
+          "description": "Absolute path on Olympus (folder or .code-workspace file) to open on every tunnel. Empty = the last folder you opened in a tunnel window."
+        },
+        "tamuOlympus.connectInNewWindow": {
+          "type": "boolean",
+          "default": true,
+          "description": "Open the tunnel in a new window (false = reuse the current window)."
+        },
+        "tamuOlympus.restoreTabs": {
+          "type": "boolean",
+          "default": true,
+          "description": "Reopen the files you had open when you connect to a new tunnel job."
+        },
+        "tamuOlympus.cleanRecent": {
+          "type": "boolean",
+          "default": true,
+          "description": "Remove old vscode-<jobid> tunnels from File > Open Recent."
+        }
+      }
+    }
+  }
+}
